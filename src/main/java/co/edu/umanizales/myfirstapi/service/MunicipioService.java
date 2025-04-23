@@ -7,11 +7,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Service
+@Service // Marca esta clase como un servicio de Spring
 public class MunicipioService {
 
+    // Lista en memoria para almacenar los datos de ubicaciones
     private final List<Ubicaciones> ubicaciones = new ArrayList<>();
 
+    // Carga datos desde otra fuente (como CSV)
     public void cargarDatos(List<Ubicaciones> data) {
         ubicaciones.clear();
         ubicaciones.addAll(data);
@@ -61,7 +63,7 @@ public class MunicipioService {
 
     public List<String> getCapitals() {
         return ubicaciones.stream()
-                .filter(u -> u.getCodigoMunicipio().endsWith("001"))
+                .filter(u -> u.getCodigoMunicipio().endsWith("001")) // Las capitales terminan en 001
                 .map(Ubicaciones::getMunicipio)
                 .collect(Collectors.toList());
     }

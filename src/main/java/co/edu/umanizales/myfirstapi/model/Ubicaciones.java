@@ -1,10 +1,16 @@
 package co.edu.umanizales.myfirstapi.model;
 
 public class Ubicaciones {
-    public String getCodigoMunicipio;
+    // Código del departamento
     private String codigoDepartamento;
+
+    // Nombre del departamento
     private String departamento;
+
+    // Código del municipio
     private String codigoMunicipio;
+
+    // Nombre del municipio
     private String municipio;
 
     // Getters y Setters

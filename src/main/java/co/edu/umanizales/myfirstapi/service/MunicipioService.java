@@ -13,7 +13,7 @@ public class MunicipioService {
     // Lista en memoria para almacenar los datos de ubicaciones
     private final List<Ubicaciones> ubicaciones = new ArrayList<>();
 
-    // Carga datos desde otra fuente (como CSV)
+    // Carga datos desde otra  fuente (como CSV)
     public void cargarDatos(List<Ubicaciones> data) {
         ubicaciones.clear();
         ubicaciones.addAll(data);

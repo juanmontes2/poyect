@@ -1,13 +1,13 @@
 package co.edu.umanizales.myfirstapi.model;
 
 public class Ubicaciones {
-    // Código del departamento
+    // Codigo del departamento
     private String codigoDepartamento;
 
     // Nombre del departamento
     private String departamento;
 
-    // Código del municipio
+    // Codigo del municipio
     private String codigoMunicipio;
 
     // Nombre del municipio

@@ -45,7 +45,7 @@ public class CsvStartupLoader implements CommandLineRunner {
                 System.out.println("Departamento: '" + line[0] + "', CodDepto: '" + line[1] +
                         "', Municipio: '" + line[2] + "', CodMunicipio: '" + line[3] + "'");
 
-                // Crear objeto Ubicaciones y llenar con los datos del CSV
+                // Crear objeto Ubicaciones y llenar con los datos del csv
                 Ubicaciones u = new Ubicaciones();
                 u.setDepartamento(line[0].trim());
                 u.setCodigoDepartamento(line[1].trim());

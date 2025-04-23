@@ -38,7 +38,7 @@ public class UbicacionesController {
 
     @GetMapping("/by-state-code/{code}")
     public List<Ubicaciones> getByStateCode(@PathVariable String code) {
-        return municipioService.getLocationsByStateCode(code); // Devuelve los municipios del departamento dado
+        return municipioService.getLocationsByStateCode(code); // Devuelve los municipio del departamento dado
     }
 
     @GetMapping("/states")

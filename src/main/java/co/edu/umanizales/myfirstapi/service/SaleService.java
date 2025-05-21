@@ -1,7 +1,26 @@
 package co.edu.umanizales.myfirstapi.service;
 
+import co.edu.umanizales.myfirstapi.model.Sale;
 import org.springframework.stereotype.Service;
 
-@Service // Marca esta clase como un servicio de Spring para ser usada en la inyección de dependencias
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
 public class SaleService {
+
+    private List<Sale> Sales = new ArrayList<>();
+
+    public boolean addSale(Sale s) {
+
+        return Sales.add(s);
+    }
+
+    public List<Sale> getAll() {
+        return Sales;
+    }
+
+
+
+
 }

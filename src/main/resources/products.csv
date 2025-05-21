@@ -1,0 +1,6 @@
+code,description,price,stock,type
+PRD01,LavadoraSamsung,1200000.0,10,TPR01
+PRD02,CamisetaNikeHombre,85000.0,50,TPR02
+PRD03,ArrozDiana 5kg,23000.0,100,TPR03
+PRD04,LegoStarWars,150000.0,20,TPR04
+PRD05,LaptopHP,2800000.0,5,TPR05

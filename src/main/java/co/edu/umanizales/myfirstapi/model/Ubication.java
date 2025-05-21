@@ -1,6 +1,6 @@
 package co.edu.umanizales.myfirstapi.model;
 
-public class Ubicaciones {
+public class Ubication {
     // Código del departamento según la codificación oficial (DIVIPOLA)
     private String codigoDepartamento;
 

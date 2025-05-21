@@ -1,31 +1,43 @@
 package co.edu.umanizales.myfirstapi.controller;
 
-import co.edu.umanizales.myfirstapi.model.Parameter;
+import co.edu.umanizales.myfirstapi.model.Location;
+import co.edu.umanizales.myfirstapi.model.TypeDocument;
+import co.edu.umanizales.myfirstapi.model.TypeProduct;
 import co.edu.umanizales.myfirstapi.service.ParameterService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
+import co.edu.umanizales.myfirstapi.service.ProductService;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RestController
-@RequestMapping(path="/parameter")
+@RequestMapping("/api-parameter")
 public class ParameterController {
-@Autowired
-    private ParameterService parameterService;
 
-@GetMapping(path="/typedocuments")
-    public List<Parameter> getTypeDocuments() {
-        return parameterService.getParametersByType(1);
+    private final ParameterService parameterService;
 
+    public ParameterController(ProductService productService, ParameterService parameterService) {
+        super();
+        this.parameterService = parameterService;
     }
-@GetMapping(path="/typeproduct")
-    public List<Parameter> getProducts() {
-        return parameterService.getParametersByType(2);
-    }
-@GetMapping(path="/product")
-    public List<Parameter> getTProducts() {
-        return parameterService.getParametersByType(3);
+
+
+    @PostMapping("/add-parameter")
+    public String newParameter(@RequestParam String type, @RequestParam String code, @RequestParam String description) {
+
+        if(type.equalsIgnoreCase("LOCATION")) {
+            Location l = new Location (code, description);
+            parameterService.addParameter(l);
+        }else if(type.equalsIgnoreCase("DOCUMENT_TYPE")) {
+            TypeDocument l = new TypeDocument (code, description);
+            parameterService.addParameter(l);
+        }else if(type.equalsIgnoreCase("PRODUCT_TYPE")) {
+            TypeProduct l = new TypeProduct(code, description);
+            parameterService.addParameter(l);
+        }else {return "tipo de parametro no valido";}
+
+
+        return null;
+
     }
 }

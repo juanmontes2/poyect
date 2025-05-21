@@ -1,7 +1,7 @@
 package co.edu.umanizales.myfirstapi.service;
 
+import co.edu.umanizales.myfirstapi.model.Location;
 import co.edu.umanizales.myfirstapi.model.Parameter;
-import co.edu.umanizales.myfirstapi.model.Product;
 import co.edu.umanizales.myfirstapi.model.TypeDocument;
 import co.edu.umanizales.myfirstapi.model.TypeProduct;
 import jakarta.annotation.PostConstruct;
@@ -9,61 +9,105 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Setter
 
-@Service // Marca esta clase como un servicio de Spring para ser usada en la inyección de dependencias
+@Service
 public class ParameterService {
-    private List<Parameter> parameters;
+
+    private List<Location> locations = new ArrayList<>();
+    private List<TypeDocument> typesDoc = new ArrayList<>();
+    private List<TypeProduct> typesProducts = new ArrayList<>();
+    private List<Parameter> parameters =new ArrayList<>();
 
     @PostConstruct
-
-    private void loadParameters() {
-        parameters = new ArrayList<>();
-        //lee diferentes csv
-
-        parameters.add(new TypeDocument( "CC", "cedula de ciudadania"));
-        parameters.add (new TypeDocument("NIT", "Numero De Identificacion Tributaria"));
-
-        //type product
-        TypeProduct pcs =new TypeProduct("1", "computadores");
-        parameters.add(pcs);
-        parameters.add(new TypeDocument("2", "pantallas"));
-
-
-        //product
-
-        parameters.add(new Product("A", "MAC", 1000000, 8,pcs));
-
-
+    public void init() {
+        loadLocationsFromCsv("src/main/resources/parameters.csv");
     }
 
-public List<Parameter> getParametersByType(int type) {
-    List<Parameter> result = new ArrayList<>();
-    for (Parameter p : parameters) {
-        switch (type) {
+    private void loadLocationsFromCsv(String filePath) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line = reader.readLine(); // encabezado
 
-            case 1:
-                if (p instanceof TypeDocument) {
-                    result.add(p);
-                }
-                break;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
 
-            case 2:
-                if (p instanceof TypeProduct) {
-                    result.add(p);
-                }
-                break;
+                String type = parts[0];
+                String code = parts[1];
+                String description = parts[2];
 
-            case 3:
-                if (p instanceof Product) {
+                switch (type.toUpperCase()) {
+                    case "LOCATION" -> locations.add(new Location(code, description));
+                    case "DOCUMENT_TYPE" -> typesDoc.add(new TypeDocument(code, description));
+                    case "PRODUCT_TYPE" -> typesProducts.add(new TypeProduct(code, description));
+                    default -> System.out.println("Tipo de parámetro desconocido: " + type);
                 }
-                break;
+
+
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
-    return result;}
+
+    public List<Location> getLocations() {
+        return locations;
+    }
+
+    public Location findLocation (String city) {
+        for (Location l: locations) {
+            if(l.getDescription().equalsIgnoreCase(city)) {
+                return l;
+            }
+        }
+        return null;
+    }
+
+    public TypeDocument findTypeDocByCode (String code) {
+        for(TypeDocument t : typesDoc) {
+            if(t.getCode().equalsIgnoreCase(code)) {
+                return t;
+            }
+        }
+        return null;
+    }
+
+    public Location findLocationByCode (String code) {
+        for(Location t : locations) {
+            if(t.getCode().equalsIgnoreCase(code)) {
+                return t;
+            }
+        }
+        return null;
+    }
+
+    public TypeProduct findProductByCode (String code) {
+        for(TypeProduct t : typesProducts) {
+            if(t.getCode().equalsIgnoreCase(code)) {
+                return t;
+            }
+        }
+        return null;
+    }
+
+    public Parameter getParameterByCode(String code) {
+        for (Parameter p : parameters) {
+            if (p.getCode().equals(code)) {
+                return p;
+            }
+        }
+        return null;
+    }
+
+    public void addParameter(Parameter parameter) {
+        parameters.add(parameter);
+    }
 }
 

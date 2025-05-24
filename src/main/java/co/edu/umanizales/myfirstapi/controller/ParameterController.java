@@ -38,6 +38,21 @@ public class ParameterController {
 
     }
 
+    @DeleteMapping("/delete-typedoc/{code}")
+    public String deleteTypeDocument(@PathVariable String code) {
+        boolean isDeleted = parameterService.deleteParameter(code);
+
+        if (isDeleted) {
+            return "Tipo de documento eliminado con éxito";
+        } else {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "Tipo de documento no encontrado con código: " + code
+            );
+        }
+    }
+
+
     @PostMapping("/add-typeproduct")
     public String newtypeprod (@RequestBody TypeProduct newtp) {
 
@@ -53,7 +68,22 @@ public class ParameterController {
         }else {
             return "ya existe el tipo de producto";
         }
+
     }
+    @DeleteMapping("/delete-typeproduct/{code}")
+    public String deleteTypeProduct(@PathVariable String code) {
+        boolean deleted = parameterService.deleteParameter(code);
+
+        if (deleted) {
+            return "Tipo de producto eliminado con éxito";
+        } else {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "Tipo de producto no encontrado con código: " + code
+            );
+        }
+    }
+
 
     @GetMapping ("/all-parameters")
     public List<Parameter> all (){
@@ -98,6 +128,20 @@ public class ParameterController {
 
         }else {return "El tipo de producto no fue encontrado";}
     }
+    @DeleteMapping("/delete-product/{code}")
+    public String deleteProduct(@PathVariable String code) {
+        boolean deleted = parameterService.deleteParameter(code);
+
+        if (deleted) {
+            return "Producto eliminado con éxito";
+        } else {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "Producto no encontrado con código: " + code
+            );
+        }
+    }
+
 
     @GetMapping("/all-products")
     public List<? extends Parameter> get() {

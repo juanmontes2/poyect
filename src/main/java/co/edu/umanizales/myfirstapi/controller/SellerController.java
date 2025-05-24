@@ -52,6 +52,17 @@ public class SellerController {
             return "Vendedor ya existe";
         }
     }
+    @DeleteMapping("/delete-seller/{code}")
+    public String deleteSeller(@PathVariable String code) {
+        Seller s = sellerService.findByIdentification(code);
+
+        if (s != null) {
+            sellerService.deleteSeller(s);
+            return "Vendedor eliminado";
+        } else {
+            return "Vendedor no encontrado";
+        }
+    }
 
     @GetMapping("/get-seller/{code}")
     public Seller getbyidentification (@PathVariable String code) {

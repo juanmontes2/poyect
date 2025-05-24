@@ -57,6 +57,16 @@ public class ParameterService {
 
         return resultado;
     }
+    public boolean deleteParameter(String code) {
+        for (Parameter p : parameters) {
+            if (p.getCode().equals(code)) {
+                parameters.remove(p);
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     public List<Parameter> getAll(){
         return parameters;

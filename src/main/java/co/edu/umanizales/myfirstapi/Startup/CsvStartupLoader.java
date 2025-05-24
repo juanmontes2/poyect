@@ -1,119 +1,76 @@
 package co.edu.umanizales.myfirstapi.Startup;
 
+import co.edu.umanizales.myfirstapi.model.Location;
+
 import co.edu.umanizales.myfirstapi.model.Product;
+import co.edu.umanizales.myfirstapi.model.Seller;
+import co.edu.umanizales.myfirstapi.model.Store;
 import co.edu.umanizales.myfirstapi.model.TypeDocument;
 import co.edu.umanizales.myfirstapi.model.TypeProduct;
-import co.edu.umanizales.myfirstapi.model.Ubication;
-import co.edu.umanizales.myfirstapi.service.MunicipeService;
+import co.edu.umanizales.myfirstapi.service.LocationService;
 import co.edu.umanizales.myfirstapi.service.ParameterService;
+import co.edu.umanizales.myfirstapi.service.SellerService;
+import co.edu.umanizales.myfirstapi.service.StoreService;
+
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.List;
 
 @Component
 public class CsvStartupLoader implements CommandLineRunner {
 
-    private final MunicipeService municipeService;
-    private final ParameterService parameterService;
+    @Autowired
+    private  ParameterService parameterService;
 
-    public CsvStartupLoader(MunicipeService municipeService, ParameterService parameterService) {
-        this.municipeService = municipeService;
-        this.parameterService = parameterService;
-    }
+    @Autowired
+    private LocationService locationService;
+
+    @Autowired
+    private SellerService sellerService;
+
+    @Autowired
+    private StoreService storeService;
+
 
     @Override
     public void run(String... args) throws Exception {
-        List<Ubication> datos = new ArrayList<>();
 
-        // Cargar municipios
-        try (CSVReader reader = new CSVReader(
-                new InputStreamReader(
-                        new ClassPathResource("DIVIPOLA-_C_digos_municipios_20250423.csv").getInputStream()))) {
+        //cargar los parametros
+        try (BufferedReader reader = new BufferedReader(new FileReader("src/main/resources/parameters.csv"))) {
+            String line = reader.readLine(); // encabezado
 
-            String[] line;
-            boolean first = true;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
 
-            while ((line = reader.readNext()) != null) {
-                if (first) {
-                    first = false;
-                    continue;
+                String type = parts[0];
+                String code = parts[1];
+                String description = parts[2];
+
+                switch (type.toUpperCase()) {
+                    case "DOCUMENT_TYPE" -> parameterService.addParameter(new TypeDocument(code, description));
+                    case "PRODUCT_TYPE" -> parameterService.addParameter(new TypeProduct(code, description));
+                    default -> System.out.println("Tipo de parámetro desconocido: " + type);
                 }
 
-                Ubication u = new Ubication();
-                u.setCodigoDepartamento(line[0].trim());
-                u.setDepartamento(line[1].trim());
-                u.setCodigoMunicipio(line[2].trim());
-                u.setMunicipio(line[3].trim());
-                u.setTipo(line[4].trim());
 
-                datos.add(u);
             }
-        }
 
-        municipeService.cargarDatos(datos);
-        System.out.println("Datos cargados: " + datos.size());
-
-        // Cargar tipos de documentos
-        try (CSVReader reader = new CSVReader(
-                new InputStreamReader(
-                        new ClassPathResource("tipos_documento.csv").getInputStream()))) {
-
-            String[] line;
-            boolean isFirst = true;
-
-            while ((line = reader.readNext()) != null) {
-                if (isFirst) {
-                    isFirst = false;
-                    continue;
-                }
-
-                String code = line[0].trim();
-                String description = line[1].trim();
-
-                if (parameterService.getParameterByCode(code) != null) {
-                    System.out.println("El código " + code + " ya existe. Se omitirá.");
-                    continue;
-                }
-
-                TypeDocument doc = new TypeDocument(code, description);
-                parameterService.addParameter(doc);
-            }
-        }
-
-        // Cargar tipos de productos
-        try (CSVReader reader = new CSVReader(
-                new InputStreamReader(
-                        new ClassPathResource("tipos_producto.csv").getInputStream()))) {
-
-            String[] line;
-            boolean isFirst = true;
-
-            while ((line = reader.readNext()) != null) {
-                if (isFirst) {
-                    isFirst = false;
-                    continue;
-                }
-
-                String code = line[0].trim();
-                String description = line[1].trim();
-
-                if (parameterService.getParameterByCode(code) != null) {
-                    System.out.println("El código " + code + " ya existe. Se omitirá.");
-                    continue;
-                }
-
-                TypeProduct doc = new TypeProduct(code, description);
-                parameterService.addParameter(doc);
-            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
         // Cargar productos
@@ -165,5 +122,84 @@ public class CsvStartupLoader implements CommandLineRunner {
             System.err.println("Error cargando productos: " + e.getMessage());
             e.printStackTrace();
         }
+
+
+        //Cargar las locaciones
+
+        try (BufferedReader reader = new BufferedReader(new FileReader("src/main/resources/locations.csv"))) {
+            String line = reader.readLine(); // encabezado
+
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+
+                String code = parts[0];
+                String description = parts[1];
+
+                Location newLocation = new Location(code, description);
+
+                locationService.addLocation(newLocation);
+
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        //Cargar los vendedores(sellers)
+
+        try (BufferedReader br = Files.newBufferedReader(Paths.get("src/main/resources/sellers.csv"))) {
+            String line;
+            boolean isFirstLine = true;
+
+            while ((line = br.readLine()) != null) {
+                if (isFirstLine) {
+                    isFirstLine = false;
+                    continue;
+                }
+
+                String[] fields = line.split(",");
+
+                String id = fields[0];
+                String typeDocCode = fields[1];
+                String name = fields[2];
+                String lastName = fields[3];
+                byte age = Byte.parseByte(fields[4]);
+                String cityCode = fields[5];
+
+
+                TypeDocument typeDoc = (TypeDocument) parameterService.getParameterByCode(typeDocCode);
+                Location city = locationService.getLocationByCode(cityCode);
+
+                Seller seller = new Seller(id, typeDoc, name, lastName, age, city);
+                sellerService.addSeller(seller);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        //Cargar las tiendas(stores)
+        try (BufferedReader reader = new BufferedReader(new FileReader("src/main/resources/stores.csv"))) {
+            reader.readLine(); // skip header
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+
+                String cityCode = parts[0];
+                String code = parts[1];
+                String name = parts[2];
+                String address = parts[3];
+                Location location = locationService.getLocationByCode(cityCode);
+
+                if (location != null) {
+                    storeService.addStore(new Store( location, code, name, address));
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
+
 }

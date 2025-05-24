@@ -7,4 +7,3 @@ public class TypeProduct extends Parameter {
         super(code, description);
     }
 }
-

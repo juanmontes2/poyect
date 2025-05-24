@@ -1,8 +1,10 @@
-package co.edu.umanizales.myfirstapi.model;
+package co.edu.umanizales.myfirstapi.dto;
+
+import co.edu.umanizales.myfirstapi.model.ProductSale;
 
 import java.util.List;
 
-public class SaleDTO {
+public class SaleDto {
 
     private String Seller;
 
@@ -10,7 +12,7 @@ public class SaleDTO {
 
     private List<ProductSale> products;
 
-    public SaleDTO(String seller, String store, List<ProductSale> products) {
+    public SaleDto(String seller, String store, List<ProductSale> products) {
         super();
         Seller = seller;
         Store = store;

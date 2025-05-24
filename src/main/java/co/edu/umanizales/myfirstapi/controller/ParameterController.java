@@ -1,43 +1,122 @@
 package co.edu.umanizales.myfirstapi.controller;
 
-import co.edu.umanizales.myfirstapi.model.Location;
+import co.edu.umanizales.myfirstapi.model.Parameter;
+import co.edu.umanizales.myfirstapi.model.Product;
 import co.edu.umanizales.myfirstapi.model.TypeDocument;
 import co.edu.umanizales.myfirstapi.model.TypeProduct;
 import co.edu.umanizales.myfirstapi.service.ParameterService;
-import co.edu.umanizales.myfirstapi.service.ProductService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api-parameter")
 public class ParameterController {
 
-    private final ParameterService parameterService;
+    @Autowired
+    private ParameterService parameterService;
 
-    public ParameterController(ProductService productService, ParameterService parameterService) {
-        super();
-        this.parameterService = parameterService;
+
+    @PostMapping("/add-typedoc")
+    public String newtypeDoc (@RequestBody TypeDocument newtd) {
+
+        TypeDocument a = (TypeDocument) parameterService.getParameterByCode(newtd.getCode());
+
+        if (a == null) {
+
+            if (parameterService.addParameter(newtd)) {
+                return "agregado con exito";
+            }else {
+                return "no se agrego el nuevo tipo de documento";
+            }
+        }else {
+            return "ya existe el tipo de documento";
+        }
+
+    }
+
+    @PostMapping("/add-typeproduct")
+    public String newtypeprod (@RequestBody TypeProduct newtp) {
+
+        TypeProduct a = (TypeProduct) parameterService.getParameterByCode(newtp.getCode());
+
+        if (a == null) {
+
+            if (parameterService.addParameter(newtp)) {
+                return "agregado con exito";
+            }else {
+                return "no se agrego el nuevo tipo de producto";
+            }
+        }else {
+            return "ya existe el tipo de producto";
+        }
+    }
+
+    @GetMapping ("/all-parameters")
+    public List<Parameter> all (){
+        return parameterService.getAll();
+    }
+
+    @GetMapping("/get-typeproducts")
+    public List<? extends Parameter> getTypesProducts(){
+        return parameterService.getParametersByType("tipoproducto");
+    }
+
+    @GetMapping("/get-typeproducts-by-code/{code}")
+    public List<? extends Parameter> getTypeProduct(@PathVariable String code) {
+        Parameter param = parameterService.getParameterByCode(code);
+
+        if (param instanceof TypeProduct) {
+            return List.of(param);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "Producto no encontrado  código: " + code);
+        }
+
+
+    }
+
+    @GetMapping("/get-typedocument")
+    public List<? extends Parameter> getTypesDocument() {
+        return parameterService.getParametersByType("tipodoc");
+    }
+    @PostMapping("/addproduct")
+    public String addProduct (@RequestBody Product newProduct) {
+
+        TypeProduct p = (TypeProduct) parameterService.getParameterByCode(newProduct.getType().getCode());
+
+        if (p != null) {
+
+            if(parameterService.addParameter(newProduct)) {
+                return "Producto ingresado con exito";
+            }else {
+                return "Producto no ingresado";
+            }
+
+        }else {return "El tipo de producto no fue encontrado";}
+    }
+
+    @GetMapping("/all-products")
+    public List<? extends Parameter> get() {
+
+        return parameterService.getParametersByType("producto");
+
     }
 
 
-    @PostMapping("/add-parameter")
-    public String newParameter(@RequestParam String type, @RequestParam String code, @RequestParam String description) {
+    @GetMapping("/find-product/{code}")
+    public Product findProductByCode(@PathVariable String code) {
+        Product product = (Product) parameterService.getParameterByCode(code);
 
-        if(type.equalsIgnoreCase("LOCATION")) {
-            Location l = new Location (code, description);
-            parameterService.addParameter(l);
-        }else if(type.equalsIgnoreCase("DOCUMENT_TYPE")) {
-            TypeDocument l = new TypeDocument (code, description);
-            parameterService.addParameter(l);
-        }else if(type.equalsIgnoreCase("PRODUCT_TYPE")) {
-            TypeProduct l = new TypeProduct(code, description);
-            parameterService.addParameter(l);
-        }else {return "tipo de parametro no valido";}
-
-
-        return null;
-
+        if(product != null) {
+            return product;
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "Producto no encontrado con código: " + code);
+        }
     }
 }
+

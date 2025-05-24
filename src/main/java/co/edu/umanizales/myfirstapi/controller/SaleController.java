@@ -1,7 +1,12 @@
 package co.edu.umanizales.myfirstapi.controller;
 
+import co.edu.umanizales.myfirstapi.dto.SaleDto;
 import co.edu.umanizales.myfirstapi.model.*;
-import co.edu.umanizales.myfirstapi.service.*;
+import co.edu.umanizales.myfirstapi.service.ParameterService;
+import co.edu.umanizales.myfirstapi.service.SaleService;
+import co.edu.umanizales.myfirstapi.service.SellerService;
+import co.edu.umanizales.myfirstapi.service.StoreService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -11,23 +16,29 @@ import java.util.List;
 @RequestMapping("/api/sales")
 public class SaleController {
 
-    private final SellerService sellerService;
-    private final StoreService storeService;
-    private final ProductService productService;
-    private final SaleService saleService;
-    public SaleController(SellerService sellerService, ParameterService parameterService, StoreService storeService, ProductService productService, SaleService saleService) {
-        this.sellerService = sellerService;
-        this.storeService = storeService;
-        this.productService =productService;
-        this.saleService= saleService;
-    }
+
+    @Autowired
+    private SellerService sellerService;
+    @Autowired
+    private StoreService storeService;
+    @Autowired
+    private SaleService saleService;
+    @Autowired
+    private ParameterService parameterService;
+
 
     @PostMapping("/new-sale")
-    public String newSale (@RequestBody SaleDTO sall) {
+    public String newSale (@RequestBody SaleDto sall) {
 
         Seller selectSeller = sellerService.findByIdentification(sall.getSeller());
         Store selectStore =  storeService.getStoreForCode(sall.getStore());
         ArrayList<ProductSale> productsSales = (ArrayList<ProductSale>) sall.getProducts();
+
+        System.out.print(selectSeller);
+
+        System.out.print(selectStore);
+
+
         double Total =0;
         int totalQuatity = 0;
 
@@ -35,14 +46,18 @@ public class SaleController {
 
             for (ProductSale prosale : productsSales ) {
 
-                Product          p = productService.getProductByCode(prosale.getCode());
+                Product p = (Product) parameterService.getParameterByCode(prosale.getCode());
                 if (p != null) {
 
                     int q = prosale.getQuantity();
                     totalQuatity += q;
-                    int newStock  = p.getStock()-q;
-                    p.setStock(newStock);
-                    Total +=prosale.getSubtotal();
+                    if(p.getStock()>q) {
+                        int newStock  = p.getStock()-q;
+                        p.setStock(newStock);
+                        Total +=prosale.getSubtotal();
+                    }else {
+                        return "La cantidad vendida del producto" + prosale.getCode() + "es menor a la cantidad en stock";
+                    }
 
                 }else {
                     return "Un producto no fue encontrado, la venta no se guardo, porfavor verifica";

@@ -1,9 +1,12 @@
 package co.edu.umanizales.myfirstapi.controller;
 
 import co.edu.umanizales.myfirstapi.model.Store;
-import co.edu.umanizales.myfirstapi.service.ParameterService;
+
+import co.edu.umanizales.myfirstapi.service.LocationService;
 import co.edu.umanizales.myfirstapi.service.StoreService;
 import co.edu.umanizales.myfirstapi.model.Location;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -14,15 +17,12 @@ import java.util.List;
 @RequestMapping("/api-stores")
 public class StoreController {
 
-    private final StoreService storeService;
-    private final ParameterService parameterService;
 
-    public StoreController(StoreService storeService, ParameterService parameterService) {
-        this.storeService = storeService;
-        this.parameterService = parameterService;
-    }
+    @Autowired
+    private StoreService storeService;
 
-
+    @Autowired
+    private LocationService locationService;
 
 
     @GetMapping("/all-stores")
@@ -44,18 +44,16 @@ public class StoreController {
     }
 
     @PostMapping("/add-store")
-    public String addStore (@RequestParam String cit, @RequestParam String code, @RequestParam String name, @RequestParam String adress ) {
+    public String addStore (@RequestBody Store nStore) {
 
-        Location city = parameterService.findLocation(cit);
-        Store storefind= storeService.getStoreForCode(code);
+        Location city = locationService.getLocationByCode(nStore.getCity().getCode());
+        Store storefind= storeService.getStoreForCode(nStore.getCode());
         System.out.print(storefind);
 
         if (city != null) {
 
             if( storefind == null) {
-
-                Store newStore = new Store(city,code,name,adress);
-                storeService.addStore(newStore);
+                storeService.addStore(nStore);
 
                 return "tienda agregada con exito";
 
@@ -69,8 +67,8 @@ public class StoreController {
         }
     }
 
-    @PostMapping("/delete-stores")
-    public String deletestore (@RequestParam String code) {
+    @PostMapping("/delete-stores/{code}")
+    public String deletestore (@PathVariable String code) {
 
         Store S = storeService.getStoreForCode(code);
 

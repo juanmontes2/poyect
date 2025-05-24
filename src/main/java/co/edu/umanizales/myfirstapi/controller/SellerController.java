@@ -1,8 +1,10 @@
 package co.edu.umanizales.myfirstapi.controller;
 
 import co.edu.umanizales.myfirstapi.model.Location;
+
 import co.edu.umanizales.myfirstapi.model.Seller;
 import co.edu.umanizales.myfirstapi.model.TypeDocument;
+import co.edu.umanizales.myfirstapi.service.LocationService;
 import co.edu.umanizales.myfirstapi.service.ParameterService;
 import co.edu.umanizales.myfirstapi.service.SellerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,14 +13,15 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(path = "/seller")
+@RequestMapping(path = "api/seller")
 public class SellerController {
 
     @Autowired
     private SellerService sellerService;
-
     @Autowired
     private ParameterService parameterService;
+    @Autowired
+    private LocationService locationService;
 
     @GetMapping("/all-sellers")
     public List<Seller> get() {
@@ -26,24 +29,18 @@ public class SellerController {
     }
 
     @PostMapping("/add-seller")
-    public String addSeller(@RequestParam String identification,
-                            @RequestParam String typeDoc,
-                            @RequestParam String name,
-                            @RequestParam String lastname,
-                            @RequestParam byte age,
-                            @RequestParam String city) {
+    public String addSeller(@RequestBody Seller nSeller) {
 
-        Seller s = sellerService.findByIdentification(identification);
+        Seller s = sellerService.findByIdentification(nSeller.getIdentification());
         System.out.print(s);
 
-        TypeDocument typedoc = parameterService.findTypeDocByCode(typeDoc);
-        Location location = parameterService.findLocation(city);
+        TypeDocument typedoc = (TypeDocument) parameterService.getParameterByCode(nSeller.getTypeDoc().getCode());
+        Location location = locationService.getLocationByCode(nSeller.getCity().getCode());
 
         if (s == null) {
             if (typedoc != null) {
                 if (location != null) {
-                    Seller newSeller = new Seller(identification, typedoc, name, lastname, age, location);
-                    sellerService.addSeller(newSeller);
+                    sellerService.addSeller(nSeller);
                     return "vendedor agregado";
                 } else {
                     return "Ciudad no encontrada";
@@ -54,5 +51,10 @@ public class SellerController {
         } else {
             return "Vendedor ya existe";
         }
+    }
+
+    @GetMapping("/get-seller/{code}")
+    public Seller getbyidentification (@PathVariable String code) {
+        return sellerService.findByIdentification(code);
     }
 }

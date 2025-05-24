@@ -25,5 +25,13 @@ public class LocationService {
         }
         return null;
     }
+    public boolean deleteLocation(Location l) {
+        return locations.remove(l);
+    }
+
+    public List<Location> getAllLocations() {
+        return locations;
+    }
+
 
 }
